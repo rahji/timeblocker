@@ -17,3 +17,7 @@ TimeBlocker is a simple CLI program that generates a schedule of possible meetin
 ## Installation
 
 `go install github.com/rahji/timeblocker@latest`
+
+## Notes
+
+Considering `timeblocker` outputs Markdown by default, you might consider piping its output to [glow](https://github.com/charmbracelet/glow)
