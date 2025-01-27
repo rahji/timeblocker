@@ -14,7 +14,7 @@ type Flags struct {
 	End      string `kong:"required,help='End time of work day (HH:MM)'"`
 	Duration int    `kong:"required,help='Duration of each meeting slot, in minutes'"`
 	Break    int    `kong:"default=5,help='Duration of the break between each meeting, in minutes'"`
-	Csv      bool   `kong:"default=false,help='Print schedule in CSV format instead of Markdown'"`
+	Csv      bool   `kong:"default=false,help='Show output as CSV instead of a Markdown table'"`
 }
 
 func main() {
