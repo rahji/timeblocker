@@ -11,6 +11,7 @@ TimeBlocker is a simple CLI program that generates a schedule of possible meetin
     --duration=INT    Duration of each meeting slot, in minutes
     --break=5         Duration of the break between each meeting, in minutes
     --csv             Show output as CSV instead of a Markdown table
+    --kitchen         Show output times as kitchen time aka 12-hour time
 ```
 
 ## Installation

@@ -15,6 +15,7 @@ type Flags struct {
 	Duration int    `kong:"required,help='Duration of each meeting slot, in minutes'"`
 	Break    int    `kong:"default=5,help='Duration of the break between each meeting, in minutes'"`
 	Csv      bool   `kong:"default=false,help='Show output as CSV instead of a Markdown table'"`
+	Kitchen  bool   `kong:"default=true,help='Show output times as kitchen time aka 12-hour time'"`
 }
 
 func main() {
@@ -22,22 +23,22 @@ func main() {
 	ctx := kong.Parse(&flags)
 	_ = ctx
 
-	// Parse start time
-	start, err := time.Parse("15:04", flags.Start)
+	// Parse day start time
+	daystart, err := time.Parse("15:04", flags.Start)
 	if err != nil {
 		fmt.Printf("Invalid start time format: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Parse end time
-	end, err := time.Parse("15:04", flags.End)
+	// Parse day end time
+	dayend, err := time.Parse("15:04", flags.End)
 	if err != nil {
 		fmt.Printf("Invalid end time format: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Validate input
-	if end.Before(start) {
+	if dayend.Before(daystart) {
 		fmt.Println("End time must be after start time")
 		os.Exit(1)
 	}
@@ -49,12 +50,12 @@ func main() {
 
 	var table strings.Builder
 
-	current := start
-	for !current.After(end) {
-		slotEnd := current.Add(time.Duration(flags.Duration) * time.Minute)
+	currentstart := daystart
+	for !currentstart.After(dayend) {
+		currentend := currentstart.Add(time.Duration(flags.Duration) * time.Minute)
 
 		// Don't include slots that extend beyond the end time
-		if slotEnd.After(end) {
+		if currentend.After(dayend) {
 			break
 		}
 
@@ -63,12 +64,16 @@ func main() {
 			format = "%s,%s\n"
 		}
 
-		table.WriteString(fmt.Sprintf(format,
-			current.Format("15:04"),
-			slotEnd.Format("15:04")),
-		)
+		s := currentstart.Format("15:04")
+		e := currentend.Format("15:04")
+		if flags.Kitchen {
+			s = currentstart.Format(time.Kitchen)
+			e = currentend.Format(time.Kitchen)
+		}
 
-		current = slotEnd.Add(time.Duration(flags.Break) * time.Minute)
+		table.WriteString(fmt.Sprintf(format, s, e))
+
+		currentstart = currentend.Add(time.Duration(flags.Break) * time.Minute)
 	}
 
 	if !flags.Csv {
